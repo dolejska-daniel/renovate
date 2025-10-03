@@ -242,12 +242,11 @@ describe('workers/repository/update/branch/index', () => {
       it('skips branch if minimumReleaseAgeTimestamp=required', async () => {
         schedule.isScheduledNow.mockReturnValueOnce(true);
         config.prCreation = 'not-pending';
-        config.minimumReleaseAgeTimestamp = 'required';
         config.upgrades = partial<BranchUpgradeConfig>([
           {
-            // releaseTimestamp: undefined,
             // no releaseTimestamp
             minimumReleaseAge: '100 days',
+            minimumReleaseAgeTimestamp: 'optional',
           },
         ]);
 
@@ -262,16 +261,18 @@ describe('workers/repository/update/branch/index', () => {
       it('does not skip branch if minimumReleaseAgeTimestamp=optional', async () => {
         schedule.isScheduledNow.mockReturnValueOnce(true);
         config.prCreation = 'not-pending';
-        config.minimumReleaseAgeTimestamp = 'optional';
         config.upgrades = partial<BranchUpgradeConfig>([
           {
             // no releaseTimestamp
             minimumReleaseAge: '100 days',
+            minimumReleaseAgeTimestamp: 'optional',
           },
         ]);
         scm.isBranchModified.mockResolvedValueOnce(false);
         await branchWorker.processBranch(config);
         expect(reuse.shouldReuseExistingBranch).toHaveBeenCalled();
+
+        console.log({ w: config.warnings });
       });
     });
 

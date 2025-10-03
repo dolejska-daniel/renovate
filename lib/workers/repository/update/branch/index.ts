@@ -410,27 +410,39 @@ export async function processBranch(
               continue;
             }
           } else {
-            // if we're set to `minimumReleaseAgeTimestamp=required`, and there isn't a timestamp, always skip the update
+            // if we're set to `minimumReleaseAgeTimestamp=required`, and there isn't a timestamp, always mark the update as pending
             if (minimumReleaseAgeTimestamp === 'required') {
               console.log(
                 {
                   depName: upgrade.depName,
                   minimumReleaseAge: upgrade.minimumReleaseAge,
                 },
-                `Update does not have releaseTimestamp, and as we're running with minimumReleaseAgeTimestamp = required, this release will be marked as pending status checks`,
+                `Update does not have releaseTimestamp, and as we're running with minimumReleaseAgeTimestamp=required, this release will be marked as pending status checks`,
               );
               logger.debug(
                 {
                   depName: upgrade.depName,
                   minimumReleaseAge: upgrade.minimumReleaseAge,
                 },
-                `Update does not have releaseTimestamp, and as we're running with minimumReleaseAgeTimestamp = required, this release will be marked as pending status checks`,
+                `Update does not have releaseTimestamp, and as we're running with minimumReleaseAgeTimestamp=required, this release will be marked as pending status checks`,
               );
               config.stabilityStatus = 'yellow';
               continue;
             } else {
               // TODO
+              // config.warnings?.push({
+              //   topic: '',
+              //   message: '',
+              // })
+
+              // otherwise, if we're set to `minimumReleaseAgeTimestamp=optional`, and there isn't a timestamp, allow the update to go ahead, with a warning
+              // HACK
+              // TODO
+              // TODO
               console.log('NEEDS WARNING');
+              // TODO
+              // TODO
+              // TODO
             }
           }
         }
