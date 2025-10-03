@@ -244,9 +244,9 @@ describe('workers/repository/update/branch/index', () => {
         config.prCreation = 'not-pending';
         config.upgrades = partial<BranchUpgradeConfig>([
           {
-            // no releaseTimestamp
+            releaseTimestamp: undefined,
             minimumReleaseAge: '100 days',
-            minimumReleaseAgeTimestamp: 'optional',
+            minimumReleaseAgeTimestamp: 'required',
           },
         ]);
 
@@ -263,7 +263,7 @@ describe('workers/repository/update/branch/index', () => {
         config.prCreation = 'not-pending';
         config.upgrades = partial<BranchUpgradeConfig>([
           {
-            // no releaseTimestamp
+            releaseTimestamp: undefined,
             minimumReleaseAge: '100 days',
             minimumReleaseAgeTimestamp: 'optional',
           },
