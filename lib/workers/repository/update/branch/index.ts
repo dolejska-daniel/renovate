@@ -1,7 +1,11 @@
 import is from '@sindresorhus/is';
 import { DateTime } from 'luxon';
 import { GlobalConfig } from '../../../../config/global';
-import type { RenovateConfig } from '../../../../config/types';
+import {
+  isMinimumReleaseAgeTimestamp,
+  type MinimumReleaseAgeTimestamp,
+  type RenovateConfig,
+} from '../../../../config/types';
 import {
   CONFIG_VALIDATION,
   MANAGER_LOCKFILE_ERROR,
@@ -367,12 +371,12 @@ export async function processBranch(
         'Branch + PR exists but is not scheduled -- will update if necessary',
       );
     }
+    console.log(JSON.stringify(config.upgrades));
     //stability checks
     if (
       config.upgrades.some(
         (upgrade) =>
-          (is.nonEmptyString(upgrade.minimumReleaseAge) &&
-            is.nonEmptyString(upgrade.releaseTimestamp)) ||
+          is.nonEmptyString(upgrade.minimumReleaseAge) ||
           isActiveConfidenceLevel(upgrade.minimumConfidence!),
       )
     ) {
@@ -381,22 +385,53 @@ export async function processBranch(
       config.stabilityStatus = 'green';
       // Default to 'success' but set 'pending' if any update is pending
       for (const upgrade of config.upgrades) {
-        if (
-          is.nonEmptyString(upgrade.minimumReleaseAge) &&
-          upgrade.releaseTimestamp
-        ) {
-          const timeElapsed = getElapsedMs(upgrade.releaseTimestamp);
-          if (timeElapsed < coerceNumber(toMs(upgrade.minimumReleaseAge))) {
-            logger.debug(
-              {
-                depName: upgrade.depName,
-                timeElapsed,
-                minimumReleaseAge: upgrade.minimumReleaseAge,
-              },
-              'Update has not passed minimum release age',
-            );
-            config.stabilityStatus = 'yellow';
-            continue;
+        if (is.nonEmptyString(upgrade.minimumReleaseAge)) {
+          let minimumReleaseAgeTimestamp: MinimumReleaseAgeTimestamp =
+            'required';
+          if (
+            isMinimumReleaseAgeTimestamp(upgrade.minimumReleaseAgeTimestamp)
+          ) {
+            minimumReleaseAgeTimestamp = upgrade.minimumReleaseAgeTimestamp;
+          }
+
+          // regardless of the value of `minimumReleaseAgeTimestamp`, if there is a timestamp, we will process it according to `minimumReleaseAge`
+          if (upgrade.releaseTimestamp) {
+            const timeElapsed = getElapsedMs(upgrade.releaseTimestamp);
+            if (timeElapsed < coerceNumber(toMs(upgrade.minimumReleaseAge))) {
+              logger.debug(
+                {
+                  depName: upgrade.depName,
+                  timeElapsed,
+                  minimumReleaseAge: upgrade.minimumReleaseAge,
+                },
+                'Update has not passed minimum release age',
+              );
+              config.stabilityStatus = 'yellow';
+              continue;
+            }
+          } else {
+            // if we're set to `minimumReleaseAgeTimestamp=required`, and there isn't a timestamp, always skip the update
+            if (minimumReleaseAgeTimestamp === 'required') {
+              console.log(
+                {
+                  depName: upgrade.depName,
+                  minimumReleaseAge: upgrade.minimumReleaseAge,
+                },
+                `Update does not have releaseTimestamp, and as we're running with minimumReleaseAgeTimestamp = required, this release will be marked as pending status checks`,
+              );
+              logger.debug(
+                {
+                  depName: upgrade.depName,
+                  minimumReleaseAge: upgrade.minimumReleaseAge,
+                },
+                `Update does not have releaseTimestamp, and as we're running with minimumReleaseAgeTimestamp = required, this release will be marked as pending status checks`,
+              );
+              config.stabilityStatus = 'yellow';
+              continue;
+            } else {
+              // TODO
+              console.log('NEEDS WARNING');
+            }
           }
         }
         const datasource = upgrade.datasource!;
