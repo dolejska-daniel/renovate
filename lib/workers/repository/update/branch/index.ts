@@ -371,7 +371,6 @@ export async function processBranch(
         'Branch + PR exists but is not scheduled -- will update if necessary',
       );
     }
-    console.log(JSON.stringify(config.upgrades));
     //stability checks
     if (
       config.upgrades.some(
@@ -412,13 +411,6 @@ export async function processBranch(
           } else {
             // if we're set to `minimumReleaseAgeTimestamp=required`, and there isn't a timestamp, always mark the update as pending
             if (minimumReleaseAgeTimestamp === 'required') {
-              console.log(
-                {
-                  depName: upgrade.depName,
-                  minimumReleaseAge: upgrade.minimumReleaseAge,
-                },
-                `Update does not have releaseTimestamp, and as we're running with minimumReleaseAgeTimestamp=required, this release will be marked as pending status checks`,
-              );
               logger.debug(
                 {
                   depName: upgrade.depName,

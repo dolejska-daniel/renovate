@@ -271,8 +271,6 @@ describe('workers/repository/update/branch/index', () => {
         scm.isBranchModified.mockResolvedValueOnce(false);
         await branchWorker.processBranch(config);
         expect(reuse.shouldReuseExistingBranch).toHaveBeenCalled();
-
-        console.log({ w: config.warnings });
       });
     });
 

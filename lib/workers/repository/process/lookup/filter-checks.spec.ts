@@ -244,16 +244,14 @@ describe('workers/repository/process/lookup/filter-checks', () => {
         ];
 
         config.internalChecksFilter = 'strict';
-        config.minimumReleaseAge = '4 days'
-        config.minimumReleaseAgeTimestamp = 'required'
+        config.minimumReleaseAge = '4 days';
+        config.minimumReleaseAgeTimestamp = 'required';
         const res = await filterInternalChecks(
           config,
           versioning,
           'patch',
           releasesWithMissingReleaseTimestamp,
         );
-        console.log({ res });
-        console.log({ res: res.pendingReleases });
         expect(res.pendingChecks).toBeFalse();
         expect(res.pendingReleases).toHaveLength(1);
         expect(res.release?.version).toBe('1.0.3');
@@ -280,16 +278,14 @@ describe('workers/repository/process/lookup/filter-checks', () => {
         ];
 
         config.internalChecksFilter = 'strict';
-        config.minimumReleaseAge = '100 days'
-        config.minimumReleaseAgeTimestamp = 'optional'
+        config.minimumReleaseAge = '100 days';
+        config.minimumReleaseAgeTimestamp = 'optional';
         const res = await filterInternalChecks(
           config,
           versioning,
           'patch',
           releasesWithMissingReleaseTimestamp,
         );
-        console.log({ res });
-        console.log({ res: res.pendingReleases });
         expect(res.pendingChecks).toBeFalse();
         expect(res.pendingReleases).toHaveLength(0);
         expect(res.release?.version).toBe('1.0.4');
